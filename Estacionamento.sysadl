@@ -1,0 +1,213 @@
+Model ParkingSystem;
+
+package ParkingSystem.Types {
+    value type Int { }
+    value type Boolean { }
+    value type String { }
+    value type Void { }
+    value type Real { }
+    value type VehicleData { }
+    value type PaymentData { }
+}
+
+package ParkingSystem.Ports {
+	import ParkingSystem.Types;
+    port def entryControl {
+        flow in VehicleData
+    }
+    port def exitControl {
+        flow in VehicleData
+    }
+    port def paymentControl {
+        flow in PaymentData
+    }
+    port def securityAlert {
+        flow out String
+    }
+    // Define other ports for communication
+}
+
+package ParkingSystem.Connectors {
+	
+//    connector def cameraConnector {
+//        connects entryControl to camera
+//        connects exitControl to camera
+//    }
+//    connector def barrierConnector {
+//        connects entryControl to entryBarrier
+//        connects exitControl to exitBarrier
+//    }
+//    connector def paymentProcessor {
+//        connects paymentControl to paymentSystem
+//    }
+    // Define other connectors for communication between components
+}
+
+package ParkingSystem.Components {
+    component def entryGate {
+//        provided port entryControl {
+//            flow in VehicleData
+//        }
+    }
+
+    component def exitGate {
+//        provided port exitControl {
+//            flow in VehicleData
+//        }
+    }
+
+    component def paymentSystem {
+//        provided port paymentControl {
+//            flow in PaymentData
+//        }
+    }
+
+    component def securitySystem {
+//        required port securityAlert {
+//            flow out String
+//        }
+    }
+
+    component def camera {
+        // Define the camera component
+    }
+
+    component def entryBarrier {
+        // Define the entry barrier component
+    }
+
+    component def exitBarrier {
+        // Define the exit barrier component
+    }
+
+    // Define other components as needed
+}
+		Requirement ControlEntranceExitFRD (1.0) {
+            text = "The system must control vehicle entry and exit."
+            Requirement EnterVehicleFRD (1.3) {
+                text = "The system must allow the entry of vehicles after proper identification."
+            }
+            Requirement RecordEntryExitFRD (1.1) {
+                text = "The system should record the date and time of entry and exit for each vehicle."
+            }
+            Requirement ConfirmPaymentFRD (1.2) {
+                text = "The system should allow vehicle exit upon payment confirmation."
+            }
+        }
+
+
+        Requirement VehicleIdentificatioFRD (2.0) {
+            text = "The system must provide methods for vehicle identification."
+            Requirement LicensePlateRecognitionFRD (2.1) {
+                text = "The system should offer license plate reading for vehicle identification."
+            }
+            Requirement ProximityCardFRD (2.2) {
+                text = "The system should support proximity card scanning for vehicle identification."
+            }
+            Requirement RegisterVehiclesFRD (2.3) {
+                text = "The system should register vehicles."
+            }
+        }
+
+        Requirement PaymentProcessingFRD (3.0) {
+            text = "The system must handle payment processing."
+            Requirement CalculateParkingFeesFRD (3.1) {
+                text = "The system should calculate parking fees based on the duration of the stay."
+            }
+            Requirement AcceptPaymentMethodsFRD (3.2) {
+                text = "The system must accept various payment methods, including Pix and credit cards."
+            }
+        }
+
+        Requirement NecessaryEquipmentFRD (4.0) {
+            text = "The system should manage necessary equipment."
+            Requirement SecurityCamerasFRD (4.1) {
+                text = "The system must have security cameras for monitoring entrances and exits."
+            }
+            Requirement AutomaticBarriersFRD (4.2) {
+                text = "The system should have automatic barriers for vehicle access control."
+            }
+            Requirement PaymentEquipmentFRD (4.3) {
+                text = "The system must have payment processing equipment."
+            }
+        }
+
+        Requirement ScalabilityNFRD (5.0) {
+            text = "The system must be scalable for different parking sizes."
+            Requirement AdaptToDifferentSizesNFRD (5.1) {
+                text = "The system should be adaptable to various parking sizes, from small lots to large garages."
+            }
+            Requirement AddEntryExitPointsNFRD (5.2) {
+                text = "It should be possible to add more entry/exit points and equipment as needed."
+            }
+        }
+
+        Requirement BackupRecoveryNFRD (6.0) {
+            text = "The system must have backup and recovery strategies."
+            Requirement RobustFailureToleranceNFRD (6.1) {
+                text = "The system should be robust and resistant to failures, ensuring control over entries and exits."
+            }
+            Requirement DataReplicationNFRD (6.2) {
+                text = "The central system must be replicated for reliability."
+            }
+        }
+
+        Requirement SecurityNFRD (7.0) {
+            text = "The system must ensure security."
+            Requirement LicensePlateDetectionNFRD (7.1) {
+                text = "The system must identify altered license plates and notify operators."
+            }
+        }
+
+        Requirement PerformanceNFRD (8.0) {
+            text = "The system must provide good performance."
+            Requirement ResponsiveInterfaceNFRD (8.1) {
+                text = "The system should be responsive with fast response times."
+            }
+            Requirement HandleVolumeNFRD (8.2) {
+                text = "The system should be capable of handling the expected volume of vehicles."
+            }
+        }
+
+        Requirement UsabilityNFRD (9.0) {
+            text = "The system should be user-friendly."
+            Requirement UserFriendlyInterfaceNFRD (9.1) {
+                text = "The system's interface should be user-friendly for operators and customers."
+            }
+            Requirement ClearInstructionsNFRD (9.2) {
+                text = "Clear instructions should guide customers during parking and payment processes."
+            }
+        }
+
+        Requirement MaintenanceUpdatesNFRD (10.0) {
+            text = "The system should support maintenance and updates."
+            Requirement EfficientUpdatesNFRD (10.1) {
+                text = "The system should allow for efficient updates to incorporate improvements and fixes."
+            }
+            Requirement PreventiveMaintenanceNFRD (10.2) {
+                text = "A preventive maintenance plan should be established for the equipment."
+            }
+        }
+
+        Requirement MeasureTemperatureNFRD (11.0) {
+            text = "The system must measure the ambient temperature."
+        }
+
+        Requirement DetectPresenceNFRD (11.1) {
+            text = "The system should automatically detect the presence of people in the environment."
+        }
+
+        Requirement DetectMovementNFRD (11.2) {
+            text = "The system must detect movement in the parking area."
+        }
+// Define other requirements as needed
+
+allocations {
+//    activity VehicleEntryAC to ParkingSystem.Components.entryGate
+//    activity VehicleExitAC to ParkingSystem.Components.exitGate
+//    activity PaymentProcessingAC to ParkingSystem.Components.paymentSystem
+    // Allocate activities to relevant components
+
+    // Define component allocations for other requirements
+}
+

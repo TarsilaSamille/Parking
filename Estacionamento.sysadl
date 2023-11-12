@@ -1,213 +1,1015 @@
 Model ParkingSystem;
 
 package ParkingSystem.Types {
-    value type Int { }
-    value type Boolean { }
-    value type String { }
-    value type Void { }
-    value type Real { }
-    value type VehicleData { }
-    value type PaymentData { }
+    value type Int {}
+    value type Boolean {}
+    value type String {}
+    value type Void {}
+    value type Real {}
+    datatype Date {
+        attributes: year: Int;
+        month: Int;
+        day: Int;
+    }
+    datatype Time {
+        attributes: hour: Int;
+        minute: Int;
+    }
+    enum PaymentConfirmation {
+        confirmed, pending, declined
+    }
+    datatype VehicleEntryInfo {
+        attributes:
+            vehicleLicense: String;
+            entryDate: Date;
+            entryTime: Time;
+    }
+    datatype VehiclePaymentRequest {
+        attributes:
+            vehicleLicense: String;
+            paymentAmount: Real;
+    }
+    datatype VehicleExitRequest {
+        attributes:
+            vehicleLicense: String;
+            exitDate: Date;
+            exitTime: Time;
+    }
+    enum VehicleIdentificationMethod {
+        licensePlateRecognition, proximityCard
+    }
+    datatype VehicleRegistrationInfo {
+        attributes:
+            vehicleLicense: String;
+            ownerName: String;
+            identificationMethod: VehicleIdentificationMethod;
+            isOk: Boolean;
+            identificationData: String;
+            entryDate: Date;
+            entryTime: Time;
+            exitDate: Date;
+            exitTime: Time;
+    }
+    datatype PaymentInfo {
+        attributes:
+            vehicleLicense: String;
+        	isPaid: Boolean;
+            paymentAmount: Real;
+    }
+    enum PaymentMethod {
+        pix, creditCard
+    }
+    datatype SecurityCamera {
+        attributes:
+            cameraID: String;
+            location: String;
+            status: Boolean;
+    }
+    datatype AutomaticBarrier {
+        attributes:
+            barrierID: String;
+            location: String;
+            status: Boolean;
+            isOpen: Boolean;
+    }
+    
+    datatype PaymentEquipment {
+        attributes:
+            equipmentID: String;
+            location: String;
+            status: Boolean;
+    }
+    datatype BackupAndRecoveryRequest {
+        attributes:
+            requestID: String;
+            action_: String; // e.g., backup, restore
+            timestamp: String; // timestamp of the request
+    }
+
+    datatype BackupAndRecoveryResponse {
+        attributes:
+            requestID: String;
+            status: String; // e.g., success, failure
+            message: String; // description of the status
+    }
+    datatype LicensePlateData {
+        attributes:
+            plateNumber: String;
+            isAltered: Boolean; // Indicates if the license plate is altered
+    }
+
+    datatype OperatorNotification {
+        attributes:
+            notificationID: String;
+            message: String; // Notification message
+    }
+    datatype PerformanceData {
+    attributes:
+        timestamp: String;
+        performanceMetrics: Real;
+        status: Boolean;
+}
+
+datatype UpdateRequest {
+    attributes:
+        requestID: String;
+        action_: String;
+        timestamp: String;
+}
+
+datatype UpdateStatus {
+    attributes:
+        requestID: String;
+        status: String;
+        message: String;
+}
+
+datatype UserInput {
+    attributes:
+        userInputID: String;
+        userInputData: String;
+        timestamp: String;
+}
+
+datatype MaintenanceRequest {
+    attributes:
+        maintenanceID: String;
+        maintenanceAction: String;
+        equipmentID: String;
+        timestamp: String;
+}
+    datatype MaintenanceResponse {
+    attributes:
+        maintenanceID: String;
+        responseMessage: String;
+        responseTimestamp: String;
+}
+
+
+    datatype ImageData {
+        attributes:
+            imageContent: String; // You can use this to store image data (e.g., in base64 format)
+            timestamp: String;    // Timestamp associated with the image
+    }
+
+    datatype ProximityCardData {
+        attributes:
+            cardID: String;       // Unique identifier for the proximity card
+            timestamp: String;    // Timestamp when the card was read
+    }
+
+    
 }
 
 package ParkingSystem.Ports {
-	import ParkingSystem.Types;
-    port def entryControl {
-        flow in VehicleData
+    import ParkingSystem.Types;
+
+    port def inVehicleEntry {
+        flow in VehicleEntryInfo
     }
-    port def exitControl {
-        flow in VehicleData
+
+    port def outEntryConfirmation {
+        flow out PaymentConfirmation
     }
-    port def paymentControl {
-        flow in PaymentData
+
+    port def inPaymentRequest {
+        flow in VehiclePaymentRequest
     }
-    port def securityAlert {
-        flow out String
+
+    port def outPaymentStatus {
+        flow out PaymentConfirmation
     }
-    // Define other ports for communication
+
+    port def inExitRequest {
+        flow in VehicleExitRequest
+    }
+
+    port def outExitConfirmation {
+        flow out PaymentConfirmation
+    }
+
+    port def inVehicleIdentification {
+        flow in VehicleIdentificationMethod
+    }
+
+    port def outVehicleRegistration {
+        flow out VehicleRegistrationInfo
+    }
+
+    port def inPaymentInfo {
+        flow in PaymentInfo
+    }
+
+    port def outPaymentConfirmation {
+        flow out PaymentConfirmation
+    }
+
+    port def inPaymentMethod {
+        flow in PaymentMethod
+    }
+
+    port def inSecurityCameraStatus {
+        flow in SecurityCamera
+    }
+
+    port def outSecurityCameraStatus {
+        flow out SecurityCamera
+    }
+
+    port def inAutomaticBarrierStatus {
+        flow in AutomaticBarrier
+    }
+
+    port def outAutomaticBarrierStatus {
+        flow out AutomaticBarrier
+    }
+
+    port def inPaymentEquipmentStatus {
+        flow in PaymentEquipment
+    }
+
+    port def outPaymentEquipmentStatus {
+        flow out PaymentEquipment
+    }
+
+    port def inIdentificationMethod {
+        flow in VehicleIdentificationMethod
+    }
+
+    port def inRegistrationInfo {
+        flow in VehicleRegistrationInfo
+    }
+    
+    port def inBackupAndRecovery {
+        flow in BackupAndRecoveryRequest
+    }
+
+    port def outBackupAndRecovery {
+        flow out BackupAndRecoveryResponse
+    }
+    // Port for license plate detection
+    port def inLicensePlateDetection {
+        flow in LicensePlateData
+    }
+
+    port def outOperatorNotification {
+        flow out OperatorNotification
+    }
+    //
+       port def inLoadBalancer {
+        flow in PerformanceData
+    }
+
+    port def outLoadBalancer {
+        flow out PerformanceData
+    }
+
+    port def inUserInput {
+        flow in UserInput
+    }
+        port def outUserInput {
+        flow in UserInput
+    }
+
+    port def inMaintenanceRequest {
+        flow in MaintenanceRequest
+    }
+    
+        port def outMaintenanceResponse {
+        flow in MaintenanceResponse
+    }
+
+    port def inSystemUpdate {
+        flow in UpdateRequest
+    }
+
+    port def outUpdateStatus {
+        flow out UpdateStatus
+}
 }
 
 package ParkingSystem.Connectors {
-	
-//    connector def cameraConnector {
-//        connects entryControl to camera
-//        connects exitControl to camera
-//    }
-//    connector def barrierConnector {
-//        connects entryControl to entryBarrier
-//        connects exitControl to exitBarrier
-//    }
-//    connector def paymentProcessor {
-//        connects paymentControl to paymentSystem
-//    }
-    // Define other connectors for communication between components
+    import ParkingSystem.Ports;
+
+    connector def vehicleEntry {
+        participants:
+            ~inEntry: inVehicleEntry {
+            }
+            ~outConfirmation: outEntryConfirmation {
+            }
+        flows:
+            VehicleEntryInfo from inEntry to outConfirmation
+    }
+
+    connector def paymentRequest {
+        participants:
+            ~inRequest: inPaymentRequest {
+            }
+            ~outStatus: outPaymentStatus {
+            }
+        flows:
+            VehiclePaymentRequest from inRequest to outStatus
+    }
+
+    connector def vehicleExit {
+        participants:
+            ~inRequest: inExitRequest {
+            }
+            ~outConfirmation: outExitConfirmation {
+            }
+        flows:
+            VehicleExitRequest from inRequest to outConfirmation
+    }
+
+    connector def vehicleIdentification {
+        participants:
+            ~inIdentification: inVehicleIdentification {}
+            ~outRegistration: outVehicleRegistration {}
+        flows:
+            VehicleIdentificationMethod from inIdentification to outRegistration
+    }
+
+    connector def paymentInfo {
+        participants:
+            ~inPayment: inPaymentInfo {}
+            ~outConfirmation: outPaymentConfirmation {}
+        flows:
+            PaymentInfo from inPayment to outConfirmation
+    }
+
+    connector def paymentMethod {
+        participants:
+            ~inMethod: inPaymentMethod {}
+            ~outStatus: outPaymentStatus {}
+        flows:
+            PaymentMethod from inMethod to outStatus
+    }
+
+    connector def connectSecurityCamera {
+        participants:
+            ~inStatus: inSecurityCameraStatus {}
+            ~outStatus: outSecurityCameraStatus {}
+        flows:
+            SecurityCamera from inStatus to outStatus
+    }
+
+    connector def connectAutomaticBarrier {
+        participants:
+            ~inStatus: inAutomaticBarrierStatus {}
+            ~outStatus: outAutomaticBarrierStatus {}
+        flows:
+            AutomaticBarrier from inStatus to outStatus
+    }
+
+    connector def connectPaymentEquipment {
+        participants:
+            ~inStatus: inPaymentEquipmentStatus {}
+            ~outStatus: outPaymentEquipmentStatus {}
+        flows:
+            PaymentEquipment from inStatus to outStatus
+    }
+    
+    //
+    
+        connector def backupAndRecovery {
+        participants:
+            ~ inBackup: inBackupAndRecovery {}
+            ~ outRecovery: outBackupAndRecovery {}
+        flows:
+            BackupAndRecoveryRequest from inBackup to outRecovery
+            BackupAndRecoveryResponse from outRecovery to inBackup
+    }
+    
+    
+    connector def licensePlateDetection {
+        participants:
+            ~ inLicensePlate: inLicensePlateDetection {}
+            ~ outNotification: outOperatorNotification {}
+        flows:
+            LicensePlateData from inLicensePlate to outNotification
+    }
+    //
+        connector def loadBalancerConnector {
+        participants:
+            ~inPerformance: inLoadBalancer {}
+            ~outPerformance: outLoadBalancer {}
+        flows:
+            PerformanceData from inPerformance to outPerformance
+    }
+
+    connector def userInterfaceConnector {
+        participants:
+            ~inUserInput: inUserInput {}
+                    ~outUserInputResponse: outUserInput {} // Define an out flow for the response
+            
+        flows:
+        UserInput from inUserInput to outUserInputResponse // Flow from in to out
+    }
+
+    connector def maintenanceManagementConnector {
+        participants:
+            ~inMaintenanceRequest: inMaintenanceRequest {}
+                    ~outMaintenanceResponse: outMaintenanceResponse {} // Define an out flow for the response
+            
+        flows:
+        MaintenanceRequest from inMaintenanceRequest to outMaintenanceResponse // Flow from in to out
+    }
+
+    connector def systemUpdateConnector {
+        participants:
+            ~inUpdateRequest: inSystemUpdate {}
+            ~outUpdateStatus: outUpdateStatus {}
+        flows:
+            UpdateRequest from inUpdateRequest to outUpdateStatus
+    }
+    
 }
 
 package ParkingSystem.Components {
-    component def entryGate {
-//        provided port entryControl {
-//            flow in VehicleData
-//        }
+    import ParkingSystem.Ports;
+    import ParkingSystem.Types;
+    import ParkingSystem.Connectors;
+    
+    component def ParkingSystem {
+    configuration {
+        components:
+        
+            // Vehicle Management Subsystem
+            vehicleManagementSubsystem: VehicleManagementSubsystem {
+                using ports:
+                    inVehicleEntryPort: inVehicleEntry {}
+                    outEntryConfirmationPort: outEntryConfirmation{}     
+                    inPaymentRequestPort: inPaymentRequest{}
+                    outPaymentStatusPort: outPaymentStatus{}   
+                    inExitRequestPort: inExitRequest;
+                    outExitConfirmationPort: outExitConfirmation;       
+                    inVehicleIdentificationPort: inVehicleIdentification;
+                    outVehicleRegistrationPort: outVehicleRegistration;
+                    inLicensePlatePort: inLicensePlateDetection {}
+                    outNotificationPort: outOperatorNotification {}
+           
+
+            // Payment Processing Subsystem
+
+                    inPaymentInfoPort: inPaymentInfo {}
+                    outPaymentConfirmationPort: outPaymentConfirmation {}
+                    inPaymentMethodPort: inPaymentMethod {}
+          
+                    inStatusPortSecurityCamera: inSecurityCameraStatus {}
+                    outStatusPortSecurityCamera: outSecurityCameraStatus {}
+         
+                    inStatusPortAutomaticBarrier: inAutomaticBarrierStatus {}
+                    outStatusPortAutomaticBarrier: outAutomaticBarrierStatus {}
+            
+                    inStatusPortPaymentEquipment: inPaymentEquipmentStatus {}
+                    outStatusPortPaymentEquipment: outPaymentEquipmentStatus {}
+            }
+
+            // Additional Subsystems
+            // Backup and Recovery Subsystem
+            backupAndRecoveryComponent: BackupAndRecoveryComponent {
+                using ports:
+                    inBackupPort: inBackupAndRecovery {}
+                    outRecoveryPort: outBackupAndRecovery {}
+            }
+
+       
+
+            // Performance Optimization Subsystem
+            performanceOptimizationComponent: PerformanceOptimizationComponent {
+                using ports:
+                    inPerformance: inLoadBalancer {}
+                    outPerformance: outLoadBalancer {}
+            }
+
+            // User Interface Subsystem
+            userInterfaceComponent: UserInterfaceComponent {
+                using ports:
+                    inUserInput: inUserInput {}
+                    outUserInput: outUserInput {} // Out port for user input response
+            }
+
+            // Maintenance Management Subsystem
+            maintenanceManagementComponent: MaintenanceManagementComponent {
+                using ports:
+                    inMaintenanceRequest: inMaintenanceRequest {}
+                    outMaintenanceResponse: outMaintenanceResponse; // Out port for maintenance response
+            }
+
+            // System Updates Subsystem
+            systemUpdateComponent: SystemUpdateComponent {
+                using ports:
+                    inUpdateRequest: inSystemUpdate {}
+                    outUpdateStatus: outUpdateStatus {}
+            }
+
+        connectors:
+            // Vehicle Management Connectors
+            vehicleEntryConnector: vehicleEntry bindings inVehicleEntryPort = outEntryConfirmationPort;
+            paymentRequestConnector: paymentRequest bindings inPaymentRequestPort = outPaymentStatusPort;
+            vehicleExitConnector: vehicleExit bindings inExitRequestPort = outExitConfirmationPort;
+            vehicleIdentificationConnector: vehicleIdentification bindings inVehicleIdentificationPort = outVehicleRegistrationPort;
+            licensePlateDetectionConnector: licensePlateDetection bindings inLicensePlatePort = outNotificationPort;
+            
+            
+            // Payment Processing Connectors
+            paymentInfoConnector: paymentInfo bindings inPaymentInfoPort = outPaymentConfirmationPort;
+            paymentMethodConnector: paymentMethod bindings inPaymentMethodPort = outPaymentStatusPort;
+            connectSecurityCameraConnector: connectSecurityCamera bindings inStatusPortSecurityCamera = inStatusPortSecurityCamera;
+            connectAutomaticBarrierConnector: connectAutomaticBarrier bindings inStatusPortAutomaticBarrier = outStatusPortAutomaticBarrier;
+            connectPaymentEquipmentConnector: connectPaymentEquipment bindings inStatusPortPaymentEquipment = outStatusPortPaymentEquipment;
+
+
+            // Additional Connectors
+            backupAndRecoveryConnector: backupAndRecovery bindings inBackupPort = outRecoveryPort;
+            performanceOptimizationConnector: loadBalancerConnector bindings inPerformance = outPerformance;
+            userInterfaceConnector: userInterfaceConnector bindings inUserInput = outUserInput;
+            maintenanceManagementConnector: maintenanceManagementConnector bindings inMaintenanceRequest = outMaintenanceResponse;
+            systemUpdateConnector: systemUpdateConnector bindings inUpdateRequest = outUpdateStatus;
+        }
+    }
+    
+    component def PaymentProcessingSubsystem {
+    configuration {
+        components:
+        
+
+            // Payment Processing Subsystem
+            paymentProcessingComponent: PaymentProcessingComponent {
+                using ports:
+                    inPaymentInfoPort: inPaymentInfo {}
+                    outPaymentConfirmationPort: outPaymentConfirmation {}
+                    inPaymentMethodPort: inPaymentMethod {}
+            }
+            paymentEquipmentComponent: PaymentEquipmentComponent {
+                using ports:
+                    inStatusPort: inPaymentEquipmentStatus {}
+                    outStatusPort: outPaymentEquipmentStatus {}
+            }
+
+
+        connectors:
+
+            // Payment Processing Connectors
+            paymentInfoConnector: paymentInfo bindings inPaymentInfoPort = outPaymentConfirmationPort;
+            paymentMethodConnector: paymentMethod bindings inPaymentMethodPort = outPaymentConfirmationPort;
+            connectPaymentEquipmentConnector: connectPaymentEquipment bindings inStatusPort = outStatusPort;
+        }
+    }
+    
+    
+     component def BarrierSubsystem {
+    configuration {
+        components:
+        
+
+            securityCameraComponent: SecurityCameraComponent {
+                using ports:
+                    inStatusPortSecurityCamera: inSecurityCameraStatus {}
+                    outStatusPortSecurityCamera: outSecurityCameraStatus {}
+            }
+            automaticBarrierComponent: AutomaticBarrierComponent {
+                using ports:
+                    inStatusPort: inAutomaticBarrierStatus {}
+                    outStatusPort: outAutomaticBarrierStatus {}
+            }
+    
+         licensePlateDetectionComponent: LicensePlateDetectionComponent {
+                using ports:
+                    inLicensePlatePort: inLicensePlateDetection {}
+                    outNotificationPort: outOperatorNotification {}
+            }
+
+        connectors:
+            connectSecurityCameraConnector: connectSecurityCamera bindings inStatusPortSecurityCamera = outStatusPortSecurityCamera;
+            connectAutomaticBarrierConnector: connectAutomaticBarrier bindings inStatusPort = outStatusPort;
+            licensePlateDetectionConnector: licensePlateDetection bindings inLicensePlatePort = outNotificationPort;
+            
+        }
+    }
+    
+    
+    component def VehicleManagementSubsystem {
+    configuration {
+        components:
+        
+            // Vehicle Management Subsystem
+            vehicleEntryComponent: VehicleEntryComponent {
+                using ports:
+                    inVehicleEntryPort: inVehicleEntry {}
+                    outEntryConfirmationPort: outEntryConfirmation{}
+            }
+            
+            vehicleExitComponent: VehicleExitComponent {
+                using ports:
+                    inExitRequestPort: inExitRequest;
+                    outExitConfirmationPort: outExitConfirmation;
+            }   
+            
+            
+            barrierSubsystem: BarrierSubsystem {
+                using ports:
+          
+                    inStatusPortSecurityCamera: inSecurityCameraStatus {}
+                    outStatusPortSecurityCamera: outSecurityCameraStatus {}
+         
+                    inStatusPortAutomaticBarrier: inAutomaticBarrierStatus {}
+                    outStatusPortAutomaticBarrier: outAutomaticBarrierStatus {}
+
+                    inLicensePlatePort: inLicensePlateDetection {}
+                    outNotificationPort: outOperatorNotification {}
+            }
+            
+            
+                        // Payment Processing Subsystem
+            paymentProcessingSubsystem: PaymentProcessingSubsystem {
+                using ports:
+                    inPaymentInfoPort: inPaymentInfo {}
+                    inPaymentMethodPort: inPaymentMethod {}
+                    outPaymentConfirmationPort: outPaymentConfirmation {}
+          
+                
+            
+                    inStatusPortPaymentEquipment: inPaymentEquipmentStatus {}
+                    outStatusPortPaymentEquipment: outPaymentEquipmentStatus {}
+            }
+            
+        connectors:
+            // Vehicle Management Connectors
+            vehicleEntryConnector: vehicleEntry bindings inVehicleEntryPort = outEntryConfirmationPort;
+            vehicleExitConnector: vehicleExit bindings inExitRequestPort = outExitConfirmationPort;
+            licensePlateDetectionConnector: licensePlateDetection bindings inLicensePlatePort = outNotificationPort;
+
+   
+   
+            // Payment Processing Connectors
+            paymentInfoConnector: paymentInfo bindings inPaymentInfoPort = outPaymentConfirmationPort;
+            paymentMethodConnector: paymentMethod bindings inPaymentMethodPort = outPaymentConfirmationPort;
+            connectSecurityCameraConnector: connectSecurityCamera bindings inStatusPortSecurityCamera = inStatusPortSecurityCamera;
+            connectAutomaticBarrierConnector: connectAutomaticBarrier bindings inStatusPortAutomaticBarrier = outStatusPortAutomaticBarrier;
+            connectPaymentEquipmentConnector: connectPaymentEquipment bindings inStatusPortPaymentEquipment = outStatusPortPaymentEquipment;
+   
+        }
     }
 
-    component def exitGate {
-//        provided port exitControl {
-//            flow in VehicleData
-//        }
+    component def VehicleEntryComponent {
+        ports:
+            inVehicleEntryPort: inVehicleEntry;
+            outEntryConfirmationPort: outEntryConfirmation;
     }
 
-    component def paymentSystem {
-//        provided port paymentControl {
-//            flow in PaymentData
-//        }
+    component def PaymentRequestComponent {
+        ports:
+            inPaymentRequestPort: inPaymentRequest;
+            outPaymentStatusPort: outPaymentStatus;
     }
 
-    component def securitySystem {
-//        required port securityAlert {
-//            flow out String
-//        }
+    component def VehicleExitComponent {
+        ports:
+            inExitRequestPort: inExitRequest;
+            outExitConfirmationPort: outExitConfirmation;
     }
 
-    component def camera {
-        // Define the camera component
+    component def PaymentProcessingComponent {
+        ports:
+            inPaymentInfoPort: inPaymentInfo {}
+            outPaymentConfirmationPort: outPaymentConfirmation {}
+            inPaymentMethodPort: inPaymentMethod {}
     }
 
-    component def entryBarrier {
-        // Define the entry barrier component
+    component def SecurityCameraComponent {
+        ports:
+            inStatusPort: inSecurityCameraStatus;
+            outStatusPort: outSecurityCameraStatus;
     }
 
-    component def exitBarrier {
-        // Define the exit barrier component
+    component def AutomaticBarrierComponent {
+        ports:
+            inStatusPort: inAutomaticBarrierStatus;
+            outStatusPort: outAutomaticBarrierStatus;
     }
 
-    // Define other components as needed
+    component def PaymentEquipmentComponent {
+        ports:
+            inStatusPort: inPaymentEquipmentStatus;
+            outStatusPort: outPaymentEquipmentStatus;
+    }
+    
+        // Component for backup and recovery
+    component def BackupAndRecoveryComponent {
+        ports:
+            inBackupPort : inBackupAndRecovery;
+            outRecoveryPort : outBackupAndRecovery;
+    }
+     component def LicensePlateDetectionComponent {
+        ports:
+            inLicensePlatePort : inLicensePlateDetection;
+            outNotificationPort : outOperatorNotification;
+    }
+    
+//
+  component def PerformanceOptimizationComponent {
+        ports:
+            inPerformance: inLoadBalancer;
+            outPerformance: outLoadBalancer;
+    }
+
+    component def UserInterfaceComponent {
+        ports:
+            inUserInput: inUserInput;
+            outUserInput: outUserInput; // Out port for user input response
+    }
+
+    component def MaintenanceManagementComponent {
+        ports:
+            inMaintenanceRequest: inMaintenanceRequest;
+            outMaintenanceResponse: outMaintenanceResponse; // Out port for maintenance response
+    }
+
+    component def SystemUpdateComponent {
+        ports:
+            inUpdateRequest: inSystemUpdate;
+            outUpdateStatus: outUpdateStatus;
+    }
+ 
+ 
+ 
+ activity def VehicleEntryAC(inSecurityCameraStatus: SecurityCamera ) (inStatusAutomaticBarrier: AutomaticBarrier) : (identify: VehicleRegistrationInfo) {
+    body {
+        actions:
+            identify : IdentifyVehicleAN {
+                using pins: identification : VehicleRegistrationInfo;
+            }
+            securityCameraIdentify : SecurityCameraIdentificationAN {
+                using pins: image : ImageData;
+            }
+             securityCameraIsOn : SecurityCameraOnAN {
+                using pins: inSecurityCameraStatus : SecurityCamera;
+            }
+            
+            automaticBarrierOpen : AutomaticBarrierOpenAN {
+                using pins: inAutomaticBarrierStatus : AutomaticBarrier; identification : VehicleRegistrationInfo;
+            }
+
+        delegate inSecurityCameraStatus to securityCameraIsOn 
+        flow from securityCameraIsOn to image 
+        flow from securityCameraIdentify to identification delegate inSecurityCameraStatus to inSecurityCameraStatus
+        
+        datastore ImagesData : ImageData {
+			}
+    }
 }
-		Requirement ControlEntranceExitFRD (1.0) {
-            text = "The system must control vehicle entry and exit."
-            Requirement EnterVehicleFRD (1.3) {
-                text = "The system must allow the entry of vehicles after proper identification."
-            }
-            Requirement RecordEntryExitFRD (1.1) {
-                text = "The system should record the date and time of entry and exit for each vehicle."
-            }
-            Requirement ConfirmPaymentFRD (1.2) {
-                text = "The system should allow vehicle exit upon payment confirmation."
-            }
-        }
+
+     action def AutomaticBarrierOpenAN(vehicleRegistrationInfo: VehicleRegistrationInfo , automaticBarrier: AutomaticBarrier) :  VehicleRegistrationInfo {
+        constraint: post-condition AutomaticBarrierOpenCondition
+    }
+    
+    action def IdentifyVehicleAN(identification: VehicleRegistrationInfo) :  VehicleRegistrationInfo {
+        constraint: post-condition VehicleIdentificationCondition
+    }
+    
+      action def SecurityCameraIdentificationAN(image: ImageData) : VehicleRegistrationInfo {
+        constraint: post-condition SecurityCameraIdentificationCondition
+    }
+    
+       action def SecurityCameraOnAN(inSecurityCameraStatus: SecurityCamera) :  ImageData{
+        constraint: post-condition SecurityCameraOnCondition
+    }
 
 
-        Requirement VehicleIdentificatioFRD (2.0) {
-            text = "The system must provide methods for vehicle identification."
-            Requirement LicensePlateRecognitionFRD (2.1) {
-                text = "The system should offer license plate reading for vehicle identification."
-            }
-            Requirement ProximityCardFRD (2.2) {
-                text = "The system should support proximity card scanning for vehicle identification."
-            }
-            Requirement RegisterVehiclesFRD (2.3) {
-                text = "The system should register vehicles."
-            }
-        }
 
-        Requirement PaymentProcessingFRD (3.0) {
-            text = "The system must handle payment processing."
-            Requirement CalculateParkingFeesFRD (3.1) {
-                text = "The system should calculate parking fees based on the duration of the stay."
-            }
-            Requirement AcceptPaymentMethodsFRD (3.2) {
-                text = "The system must accept various payment methods, including Pix and credit cards."
-            }
-        }
+    constraint SecurityCameraOnCondition(inSecurityCameraStatus: SecurityCamera) : (image: ImageData) {
+   		 equation = inSecurityCameraStatus->status && inSecurityCameraStatus->location != ""
+    }
 
-        Requirement NecessaryEquipmentFRD (4.0) {
-            text = "The system should manage necessary equipment."
-            Requirement SecurityCamerasFRD (4.1) {
-                text = "The system must have security cameras for monitoring entrances and exits."
-            }
-            Requirement AutomaticBarriersFRD (4.2) {
-                text = "The system should have automatic barriers for vehicle access control."
-            }
-            Requirement PaymentEquipmentFRD (4.3) {
-                text = "The system must have payment processing equipment."
-            }
-        }
+ 	constraint SecurityCameraIdentificationCondition(image: ImageData)  : (vehicleRegistrationInfo: VehicleRegistrationInfo) {
+        equation = image->imageContent != ""
+    }
+     constraint VehicleIdentificationCondition(inSecurityCameraStatus: SecurityCamera) : (image: ImageData) {
+            equation = inSecurityCameraStatus->status && image->imageContent != ""
+    }
 
-        Requirement ScalabilityNFRD (5.0) {
-            text = "The system must be scalable for different parking sizes."
-            Requirement AdaptToDifferentSizesNFRD (5.1) {
-                text = "The system should be adaptable to various parking sizes, from small lots to large garages."
-            }
-            Requirement AddEntryExitPointsNFRD (5.2) {
-                text = "It should be possible to add more entry/exit points and equipment as needed."
-            }
-        }
+     constraint AutomaticBarrierOpenCondition(vehicleRegistrationInfo: VehicleRegistrationInfo, automaticBarrier: AutomaticBarrier) : (vehicleRegistrationInfo: VehicleRegistrationInfo) {
+ 			equation = automaticBarrier->status == true 
+                && automaticBarrier->isOpen == false 
+                && vehicleRegistrationInfo->identificationMethod == VehicleIdentificationMethod::licensePlateRecognition
+                && vehicleRegistrationInfo->isOk
+    }
+    
 
-        Requirement BackupRecoveryNFRD (6.0) {
-            text = "The system must have backup and recovery strategies."
-            Requirement RobustFailureToleranceNFRD (6.1) {
-                text = "The system should be robust and resistant to failures, ensuring control over entries and exits."
-            }
-            Requirement DataReplicationNFRD (6.2) {
-                text = "The central system must be replicated for reliability."
-            }
-        }
+   
 
-        Requirement SecurityNFRD (7.0) {
-            text = "The system must ensure security."
-            Requirement LicensePlateDetectionNFRD (7.1) {
-                text = "The system must identify altered license plates and notify operators."
-            }
-        }
 
-        Requirement PerformanceNFRD (8.0) {
-            text = "The system must provide good performance."
-            Requirement ResponsiveInterfaceNFRD (8.1) {
-                text = "The system should be responsive with fast response times."
+activity def VehicleExitAC(inSecurityCameraStatus: SecurityCamera ) (inStatusAutomaticBarrier: AutomaticBarrier) (inStatusPaymentEquipment: PaymentEquipment) : (exitConfirmation: PaymentConfirmation) {
+    body {
+        actions:
+                  identify : IdentifyVehicleAN {
+                using pins: identification : VehicleRegistrationInfo;
             }
-            Requirement HandleVolumeNFRD (8.2) {
-                text = "The system should be capable of handling the expected volume of vehicles."
+            securityCameraIdentify : SecurityCameraIdentificationAN {
+                using pins: image : ImageData;
             }
-        }
+             securityCameraIsOn : SecurityCameraOnAN {
+                using pins: inSecurityCameraStatus : SecurityCamera;
+            }
+            
+            automaticBarrierOpen : AutomaticBarrierOpenOutAN {
+                using pins: inAutomaticBarrierStatus : AutomaticBarrier; 
+                paymentInfo : PaymentInfo;
+                identification : VehicleRegistrationInfo;
+            }
 
-        Requirement UsabilityNFRD (9.0) {
-            text = "The system should be user-friendly."
-            Requirement UserFriendlyInterfaceNFRD (9.1) {
-                text = "The system's interface should be user-friendly for operators and customers."
+            calculatePayment : CalculatePaymentAction {
+                using pins: vehicleRegistrationInfo: VehicleRegistrationInfo;
             }
-            Requirement ClearInstructionsNFRD (9.2) {
-                text = "Clear instructions should guide customers during parking and payment processes."
+            acceptPayment : AcceptPaymentAction {
+                using pins: paymentInfo : PaymentInfo;
+                inStatusPaymentEquipment: PaymentEquipment;
             }
-        }
 
-        Requirement MaintenanceUpdatesNFRD (10.0) {
-            text = "The system should support maintenance and updates."
-            Requirement EfficientUpdatesNFRD (10.1) {
-                text = "The system should allow for efficient updates to incorporate improvements and fixes."
+            confirmExit : ConfirmExitAction {
+                using pins: confirmation : PaymentConfirmation; 
             }
-            Requirement PreventiveMaintenanceNFRD (10.2) {
-                text = "A preventive maintenance plan should be established for the equipment."
-            }
-        }
+        
+        delegate inSecurityCameraStatus to securityCameraIsOn 
+        delegate inStatusAutomaticBarrier to inAutomaticBarrierStatus
+        delegate inSecurityCameraStatus to inSecurityCameraStatus 
+        delegate inStatusPaymentEquipment to inStatusPaymentEquipment 
+        
+        flow from securityCameraIsOn to image 
+        flow from securityCameraIdentify to identification 
+        flow from identify to vehicleRegistrationInfo 
+        flow from calculatePayment to paymentInfo 
+        
+        datastore ImagesData : ImageData {
+			}
+    }
+}
 
-        Requirement MeasureTemperatureNFRD (11.0) {
-            text = "The system must measure the ambient temperature."
-        }
+    action def AutomaticBarrierOpenOutAN(vehicleRegistrationInfo: VehicleRegistrationInfo , automaticBarrier: AutomaticBarrier, paymentInfo : PaymentInfo) :  PaymentConfirmation {
+        constraint: post-condition AutomaticBarrierOpenOutCondition
+    }
+    
+         constraint AutomaticBarrierOpenOutCondition(vehicleRegistrationInfo: VehicleRegistrationInfo, automaticBarrier: AutomaticBarrier, paymentInfo : PaymentInfo) : (paymentConfirmation: PaymentConfirmation) {
+  				 equation = automaticBarrier->status && automaticBarrier->isOpen
+                && vehicleRegistrationInfo->identificationMethod == VehicleIdentificationMethod::licensePlateRecognition
+                && paymentInfo->isPaid
+    }
+    
+    
 
-        Requirement DetectPresenceNFRD (11.1) {
-            text = "The system should automatically detect the presence of people in the environment."
-        }
+action def ConfirmExitAction(confirmation: PaymentConfirmation) : PaymentConfirmation {
+    constraint: post-condition ExitConfirmationCondition
+}
 
-        Requirement DetectMovementNFRD (11.2) {
-            text = "The system must detect movement in the parking area."
-        }
-// Define other requirements as needed
+constraint ExitConfirmationCondition(confirmation: PaymentConfirmation) : (exitConfirmation: PaymentConfirmation) {
+        equation = confirmation == PaymentConfirmation::confirmed || confirmation == PaymentConfirmation::pending
+
+}
+
+
+
+
+action def CalculatePaymentAction(vehicleRegistrationInfo : VehicleRegistrationInfo) : PaymentInfo {
+    constraint: post-condition PaymentProcessingCondition
+}
+
+ constraint PaymentProcessingCondition(vehicleRegistrationInfo : VehicleRegistrationInfo ) : (paymentInfo: PaymentInfo) {
+            equation = vehicleRegistrationInfo->isOk
+    }
+
+action def AcceptPaymentAction(paymentInfo: PaymentInfo) : PaymentInfo {
+    constraint: post-condition PaymentConfirmationCondition
+}
+
+constraint PaymentConfirmationCondition(paymentInfo: PaymentInfo) : (paymentInfo: PaymentInfo) {
+     equation = paymentInfo->isPaid
+
+}
+
+
+
+}
+
+
+Requirement ControlEntranceExitFRD (1.0) {
+    text = "The system must control vehicle entry and exit."
+    Requirement EnterVehicleFRD (1.3) {
+        text = "The system must allow the entry of vehicles after proper identification."
+        satisfied by ParkingSystem.Components.VehicleEntryComponent;
+    }
+    Requirement RecordEntryExitFRD (1.1) {
+        text = "The system should record the date and time of entry and exit for each vehicle."
+        satisfied by ParkingSystem.Components.VehicleExitComponent;
+    }
+    Requirement ConfirmPaymentNFRD (1.2) {
+        text = "The system should allow vehicle exit upon payment confirmation."
+        satisfied by ParkingSystem.Components.PaymentRequestComponent;
+    }
+}
+
+Requirement VehicleIdentificationFRD (2.0) {
+    text = "The system must provide methods for vehicle identification."
+    satisfied by ParkingSystem.Components.LicensePlateDetectionComponent;
+    Requirement LicensePlateRecognitionNFRD (2.1) {
+        text = "The system should offer license plate reading for vehicle identification."
+    }
+    Requirement ProximityCardNFRD (2.2) {
+        text = "The system should support proximity card scanning for vehicle identification."
+    }
+    Requirement RegisterVehiclesNFRD (2.3) {
+        text = "The system should register vehicles."
+    }
+}
+
+Requirement PaymentProcessingFRD (3.0) {
+    text = "The system must handle payment processing."
+    Requirement CalculateParkingFeesNFRD (3.1) {
+        text = "The system should calculate parking fees based on the duration of the stay."
+    }
+    Requirement AcceptPaymentMethodsNFRD (3.2) {
+        text = "The system must accept various payment methods, including Pix and credit cards."
+    }
+}
+
+Requirement EquipmentInstallationNFRD (4.0) {
+    text = "The system should manage necessary equipment."
+    Requirement SecurityCamerasNFRD (4.1) {
+        text = "The system must install security cameras for monitoring entrances and exits."
+        satisfied by ParkingSystem.Components.SecurityCameraComponent;
+    }
+    Requirement AutomaticBarriersNFRD (4.2) {
+        text = "The system should install automatic barriers for vehicle access control."
+        satisfied by ParkingSystem.Components.AutomaticBarrierComponent;
+    }
+    Requirement PaymentEquipmentNFRD (4.3) {
+        text = "The system must install payment processing equipment."
+        satisfied by ParkingSystem.Components.PaymentEquipmentComponent;
+    }
+}
+
+Requirement ScalabilityNFRD (5.0) {
+    text = "The system must be scalable for different parking sizes."
+    Requirement AdaptToDifferentSizesNFRD (5.1) {
+        text = "The system should be adaptable to various parking sizes, from small lots to large garages."
+    }
+    Requirement AddEntryExitPointsNFRD (5.2) {
+        text = "It should be possible to add more entry/exit points and equipment as needed."
+        satisfied by ParkingSystem.Components.ParkingSystem;
+    }
+}
+
+Requirement BackupRecoveryNFRD (6.0) {
+    text = "The system must have backup and recovery strategies."
+    Requirement RobustFailureToleranceNFRD (6.1) {
+        text = "The system should be robust and resistant to failures, ensuring control over entries and exits."
+    }
+    Requirement DataReplicationNFRD (6.2) {
+        text = "The central system must be replicated for reliability."
+    }
+}
+
+Requirement SecurityNFRD (7.0) {
+    text = "The system must ensure security."
+    Requirement LicensePlateDetectionNFRD (7.1) {
+        text = "The system must identify altered license plates and notify operators."
+    }
+}
+
+Requirement PerformanceNFRD (8.0) {
+    text = "The system must provide good performance."
+    Requirement ResponsiveInterfaceNFRD (8.1) {
+        text = "The system should be responsive with fast response times."
+    }
+    Requirement HandleVolumeNFRD (8.2) {
+        text = "The system should be capable of handling the expected volume of vehicles."
+    }
+}
+
+Requirement UsabilityNFRD (9.0) {
+    text = "The system should be user-friendly."
+    Requirement UserFriendlyInterfaceNFRD (9.1) {
+        text = "The system's interface should be user-friendly for operators and customers."
+    }
+    Requirement ClearInstructionsNFRD (9.2) {
+        text = "Clear instructions should guide customers during parking and payment processes."
+    }
+}
+
+Requirement MaintenanceUpdatesNFRD (10.0) {
+    text = "The system should support maintenance and updates."
+    Requirement EfficientUpdatesNFRD (10.1) {
+        text = "The system should allow for efficient updates to incorporate improvements and fixes."
+    }
+    Requirement PreventiveMaintenanceNFRD (10.2) {
+        text = "A preventive maintenance plan should be established for the equipment."
+    }
+}
+
+        
 
 allocations {
-//    activity VehicleEntryAC to ParkingSystem.Components.entryGate
-//    activity VehicleExitAC to ParkingSystem.Components.exitGate
-//    activity PaymentProcessingAC to ParkingSystem.Components.paymentSystem
-    // Allocate activities to relevant components
-
-    // Define component allocations for other requirements
+    activity VehicleEntryAC to VehicleEntryComponent
+    activity VehicleExitAC to VehicleExitComponent
+ 
 }
-

@@ -83,7 +83,7 @@ package ParkingSystem.Types {
         attributes:
             requestID: String;
             action_: String; // e.g., backup, restore
-            timestamp: String; // timestamp of the request
+            timestamp: String; // 0timestamp of the request
     }
 
     datatype BackupAndRecoveryResponse {
@@ -149,13 +149,13 @@ datatype MaintenanceRequest {
     datatype ImageData {
         attributes:
             imageContent: String; // You can use this to store image data (e.g., in base64 format)
-            timestamp: String;    // Timestamp associated with the image
+            timestamp: String;    // 9Timestamp associated with the image
     }
 
     datatype ProximityCardData {
         attributes:
             cardID: String;       // Unique identifier for the proximity card
-            timestamp: String;    // Timestamp when the card was read
+            timestamp: String;    // 0Timestamp when the card was read
     }
 
     
@@ -929,22 +929,6 @@ Requirement PaymentProcessingFRD (3.0) {
     }
     Requirement AcceptPaymentMethodsNFRD (3.2) {
         text = "The system must accept various payment methods, including Pix and credit cards."
-    }
-}
-
-Requirement EquipmentInstallationNFRD (4.0) {
-    text = "The system should manage necessary equipment."
-    Requirement SecurityCamerasNFRD (4.1) {
-        text = "The system must install security cameras for monitoring entrances and exits."
-        satisfied by ParkingSystem.Components.SecurityCameraComponent;
-    }
-    Requirement AutomaticBarriersNFRD (4.2) {
-        text = "The system should install automatic barriers for vehicle access control."
-        satisfied by ParkingSystem.Components.AutomaticBarrierComponent;
-    }
-    Requirement PaymentEquipmentNFRD (4.3) {
-        text = "The system must install payment processing equipment."
-        satisfied by ParkingSystem.Components.PaymentEquipmentComponent;
     }
 }
 

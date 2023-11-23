@@ -452,107 +452,54 @@ package ParkingSystem.Components {
     import ParkingSystem.Connectors;
     
     component def ParkingSystem {
-    configuration {
-        components:
-        
-            // Vehicle Management Subsystem
-            vehicleManagementSubsystem: VehicleManagementSubsystem {
-                using ports:
-                    inVehicleEntryPort: inVehicleEntry {}
-                    outEntryConfirmationPort: outEntryConfirmation{}     
-                    inPaymentRequestPort: inPaymentRequest{}
-                    outPaymentStatusPort: outPaymentStatus{}   
-                    inExitRequestPort: inExitRequest;
-                    outExitConfirmationPort: outExitConfirmation;       
-                    inVehicleIdentificationPort: inVehicleIdentification;
-                    outVehicleRegistrationPort: outVehicleRegistration;
-                    inLicensePlatePort: inLicensePlateDetection {}
-                    outNotificationPort: outCarData {}
-           
+        configuration {
+            components:
+            
+                // Vehicle Management Subsystem
+                vehicleManagementSubsystem: VehicleManagementSubsystem {
+                    using ports:
+                        inVehicleEntryPort: inVehicleEntry {}
+                        outEntryConfirmationPort: outEntryConfirmation{}     
+                        inPaymentRequestPort: inPaymentRequest{}
+                        outPaymentStatusPort: outPaymentStatus{}   
+                        inExitRequestPort: inExitRequest;
+                        outExitConfirmationPort: outExitConfirmation;       
+                        inVehicleIdentificationPort: inVehicleIdentification;
+                        outVehicleRegistrationPort: outVehicleRegistration;
+                        inLicensePlatePort: inLicensePlateDetection {}
+                        outNotificationPort: outCarData {}
+                }
 
-            // Payment Processing Subsystem
+                // Payment Processing Subsystem
+                PaymentProcessingSubsystem: PaymentProcessingSubsystem {
+                    using ports:
+                        inPaymentInfoPort: inPaymentInfo {}
+                        outPaymentConfirmationPort: outPaymentConfirmation {}
+                        inPaymentMethodPort: inPaymentMethod {}
+            
+                        inStatusPortSecurityCamera: inSecurityCameraStatus {}
+                        outStatusPortSecurityCamera: outSecurityCameraStatus {}
+            
+                        inStatusPortAutomaticBarrier: inAutomaticBarrierStatus {}
+                        outStatusPortAutomaticBarrier: outAutomaticBarrierStatus {}
+                
+                        inStatusPortPaymentEquipment: inPaymentEquipmentStatus {}
+                        outStatusPortPaymentEquipment: outPaymentEquipmentStatus {}
+                }
 
-                    inPaymentInfoPort: inPaymentInfo {}
-                    outPaymentConfirmationPort: outPaymentConfirmation {}
-                    inPaymentMethodPort: inPaymentMethod {}
-          
-                    inStatusPortSecurityCamera: inSecurityCameraStatus {}
-                    outStatusPortSecurityCamera: outSecurityCameraStatus {}
-         
-                    inStatusPortAutomaticBarrier: inAutomaticBarrierStatus {}
-                    outStatusPortAutomaticBarrier: outAutomaticBarrierStatus {}
-            
-                    inStatusPortPaymentEquipment: inPaymentEquipmentStatus {}
-                    outStatusPortPaymentEquipment: outPaymentEquipmentStatus {}
-            }
-
-            // Additional Subsystems
-            // Backup and Recovery Subsystem
-            backupAndRecoveryComponent: BackupAndRecoveryComponent {
-                using ports:
-                    inBackupPort: inBackupAndRecovery {}
-                    outRecoveryPort: outBackupAndRecovery {}
-            }
-
-       
-
-            // Performance Optimization Subsystem
-            performanceOptimizationComponent: PerformanceOptimizationComponent {
-                using ports:
-                    inPerformance: inLoadBalancer {}
-                    outPerformance: outLoadBalancer {}
-            }
-
-            // User Interface Subsystem
-            userInterfaceComponent: UserInterfaceComponent {
-                using ports:
-                    inUserInput: inUserInput {}
-                    outUserInput: outUserInput {} // Out port for user input response
-            }
-
-            // Maintenance Management Subsystem
-            maintenanceManagementComponent: MaintenanceManagementComponent {
-                using ports:
-                    inMaintenanceRequest: inMaintenanceRequest {}
-                    outMaintenanceResponse: outMaintenanceResponse; // Out port for maintenance response
-            }
-
-            // System Updates Subsystem
-            systemUpdateComponent: SystemUpdateComponent {
-                using ports:
-                    inUpdateRequest: inSystemUpdate {}
-                    outUpdateStatus: outUpdateStatus {}
-            }
-
-        connectors:
-            // Vehicle Management Connectors
-            vehicleEntryConnector: vehicleInfo bindings inVehicleEntryPort = outEntryConfirmationPort;
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-
-
-            
-            
-            
-            
-            
-        }
+                faultToleranceComponent: FaultToleranceComponent {
+            	    using ports:
+                	inSecurityCameraStatus: inSecurityCameraStatus;
+                    outSecurityCameraStatus: outSecurityCameraStatus;
+                    inPaymentEquipmentStatus: inPaymentEquipmentStatus;
+                    outPaymentEquipmentStatus: outPaymentEquipmentStatus;
+                }
+        } 
     }
     
     component def PaymentProcessingSubsystem {
-    configuration {
-        components:
-        
-
+        configuration {
+            components:
             // Payment Processing Subsystem
             paymentProcessingComponent: PaymentProcessingComponent {
                 using ports:
@@ -560,117 +507,100 @@ package ParkingSystem.Components {
                     
                     outPaymentConfirmationPort: outPaymentConfirmation {}
                     inStatusPortVerify: inPaymentEquipmentStatus {}
+                    outPaymentStatus: outPaymentStatus {}
                     outPaymentInfo: outPaymentInfo {}
                     inPaymentInfo: inPaymentInfo {}
-                   
             }
+
             paymentEquipmentComponent: PaymentEquipmentComponent {
                 using ports:
-                      inPaymentInfoEquipment: inPaymentInfo {}
-                                    outPaymentInfoEquipment: outPaymentInfo {}
+                    inPaymentInfoEquipment: inPaymentInfo {}
+                    outPaymentInfoEquipment: outPaymentInfo {}
                 
-                     inPaymentMethodPort: inPaymentMethod {}
+                    inPaymentMethodPort: inPaymentMethod {}
                     inStatusPort: inPaymentEquipmentStatus {}
                     outStatusPort: outPaymentEquipmentStatus {}
             }
 
-
-        connectors:
-
-           paymentConnector: connectPaymentEquipment bindings   outStatusPort = inStatusPortVerify;
-           paymentConnector2: paymentInfo bindings   outPaymentInfo = inPaymentInfoEquipment;
-           paymentConnector3: paymentInfo bindings   outPaymentInfoEquipment = inPaymentInfo;
-            
-            
-            
+            connectors:
+                paymentStatus: connectPaymentEquipment bindings outStatusPort = inStatusPortVerify;
+                paymentInfo: paymentInfo bindings outPaymentInfo = inPaymentInfoEquipment;
+                paymentInfoEquipment: paymentInfo bindings outPaymentInfoEquipment = inPaymentInfo;
         }
     }
     
     
-     component def BarrierSubsystem {
-    configuration {
-        components:
+    component def BarrierSubsystem {
+        configuration {
+            components:
+                securityCameraComponent: SecurityCameraComponent [ 1 , 100 ] { using ports :
+                        inStatusPortSecurityCamera: inSecurityCameraStatus {}
+                        outStatusPortSecurityCamera: outSecurityCameraStatus {}
+                        outImageData: outImageData {}
+                }
+                automaticBarrierComponent: AutomaticBarrierComponent [ 1 , 100 ] { using ports :
+                        inStatusPort: inAutomaticBarrierStatus {}
+                        outStatusPort: outAutomaticBarrierStatus {}
+                }
         
+                licensePlateDetectionComponent: LicensePlateDetectionComponent {
+                    using ports:
+                        inImageData: inImageData [ 1 , 100 ] ;
+                        outCarData: outCarData {}
+                }
 
-            securityCameraComponent: SecurityCameraComponent [ 1 , 100 ] { using ports :
-                    inStatusPortSecurityCamera: inSecurityCameraStatus {}
-                    outStatusPortSecurityCamera: outSecurityCameraStatus {}
-                    outImageData: outImageData {}
-            }
-            automaticBarrierComponent: AutomaticBarrierComponent [ 1 , 100 ] { using ports :
-                    inStatusPort: inAutomaticBarrierStatus {}
-                    outStatusPort: outAutomaticBarrierStatus {}
-            }
-    
-         	licensePlateDetectionComponent: LicensePlateDetectionComponent {
-                using ports:
-                    inImageData: inImageData [ 1 , 100 ] ;
-                    outCarData: outCarData {}
-            }
-
-        connectors:
-            
-             imageDataConnector: connectImageData bindings   outImageData = inImageData;
-            
-            
-            
+            connectors:
+                imageDataConnector: connectImageData bindings   outImageData = inImageData;
         }
     }
     
     
     component def VehicleManagementSubsystem {
-    configuration {
-        components:
-        
-         	vehicleEntryComponent: VehicleEntryComponent {
-                using ports:
-            		inVehicleEntry: inVehicleEntry{}
-                    outStatusPort: outAutomaticBarrierStatus {}
-            }
-            
+        configuration {
+            components:
+                vehicleEntryComponent: VehicleEntryComponent {
+                    using ports:
+                        inVehicleEntry: inVehicleEntry{}
+                        outStatusPort: outAutomaticBarrierStatus {}
+                }
 
-   
-            vehicleExitComponent: VehicleExitComponent {
-                using ports:
-                    inVehicleExit: inExitRequest{}
-                    outStatusPortExit: outAutomaticBarrierStatus {}
-                    inPaymentConfirmation: inPaymentStatus {}
-                   
-            }   
-            
-            
-            paymentProcessingSubsystem: PaymentProcessingSubsystem {
-                using ports:
-                    inVehicleExitPayment: inExitRequest{}
-            		outPaymentConfirmationPort: outPaymentConfirmation {}
-           }
-            
-        	BarrierSubsystem : BarrierSubsystem {
-                using ports:
-                    outCarData: outCarData {}
-                    inStatusPort: inAutomaticBarrierStatus {}
-                   
-            }
-            
-             connectors:
-            
-                vehicleEntryConnector: vehicleInfo bindings   outCarData = inVehicleEntry;
-                vehicleEntryConnector2: vehicleInfo bindings  outStatusPort = inStatusPort;
-            
-            
-                vehicleExitConnector: vehicleInfo bindings   outCarData = inVehicleExit;
-                vehicleExitConnector2: vehicleInfo bindings  outStatusPortExit = inStatusPort;
-            
-           
-            
-                vehiclePaymentConnector: vehicleInfo bindings   outCarData = inVehicleExitPayment;
-                vehiclePaymentConnector2: paymentInfo bindings  outPaymentConfirmationPort = inPaymentConfirmation;
-            
-           
-            
-            
-   
+                vehicleExitComponent: VehicleExitComponent {
+                    using ports:
+                        inVehicleExit: inExitRequest{}
+                        outStatusPortExit: outAutomaticBarrierStatus {}
+                        inPaymentConfirmation: inPaymentStatus {}
+                }   
+                
+                paymentProcessingSubsystem: PaymentProcessingSubsystem {
+                    using ports:
+                        inVehicleExitPayment: inExitRequest{}
+                        outPaymentConfirmationPort: outPaymentConfirmation {}
+                }
+                
+                BarrierSubsystem : BarrierSubsystem {
+                    using ports:
+                        outCarData: outCarData {}
+                        inStatusPort: inAutomaticBarrierStatus {}  
+                }
+                
+                connectors:
+                    vehicleEntryData: vehicleInfo bindings   outCarData = inVehicleEntry;
+                    vehicleEntryConnector2: vehicleInfo bindings  outStatusPort = inStatusPort;
+                
+                    vehicleExitData: vehicleInfo bindings   outCarData = inVehicleExit;
+                    vehicleExitStatus: vehicleInfo bindings  outStatusPortExit = inStatusPort;
+
+                    vehiclePaymentData: vehicleInfo bindings   outCarData = inVehicleExitPayment;
+                    vehiclePaymentStatus: paymentInfo bindings  outPaymentConfirmationPort = inPaymentConfirmation;
         }
+    }
+
+    component def FaultToleranceComponent {
+        ports:
+            inSecurityCameraStatus: inSecurityCameraStatus;
+            outSecurityCameraStatus: outSecurityCameraStatus;
+            inPaymentEquipmentStatus: inPaymentEquipmentStatus;
+            outPaymentEquipmentStatus: outPaymentEquipmentStatus;
     }
 
     component def VehicleEntryComponent {
@@ -708,9 +638,9 @@ package ParkingSystem.Components {
 
     component def PaymentEquipmentComponent {
         ports:
-          inPaymentInfo: inPaymentInfo;
+            inPaymentInfo: inPaymentInfo;
         
-                             inPaymentMethodPort: inPaymentMethod;
+            inPaymentMethodPort: inPaymentMethod;
         
             inStatusPort: inPaymentEquipmentStatus;
             outStatusPort: outPaymentEquipmentStatus;

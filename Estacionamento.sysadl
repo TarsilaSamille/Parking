@@ -494,6 +494,36 @@ package ParkingSystem.Components {
                     inPaymentEquipmentStatus: inPaymentEquipmentStatus;
                     outPaymentEquipmentStatus: outPaymentEquipmentStatus;
                 }
+                
+                BackupAndRecoveryComponent: BackupAndRecoveryComponent {
+                    using ports:
+                        inBackupPort : inBackupAndRecovery;
+                        outRecoveryPort : outBackupAndRecovery;
+                }
+                
+                PerformanceOptimizationComponent: PerformanceOptimizationComponent {
+                    using ports:
+                        inPerformance: inLoadBalancer;
+                        outPerformance: outLoadBalancer;
+                }
+
+                UserInterfaceComponent: UserInterfaceComponent {
+                    using ports:
+                        inUserInput: inUserInput;
+                        outUserInput: outUserInput; // Out port for user input response
+                }
+
+                MaintenanceManagementComponent: MaintenanceManagementComponent {
+                    using ports:
+                        inMaintenanceRequest: inMaintenanceRequest;
+                        outMaintenanceResponse: outMaintenanceResponse; // Out port for maintenance response
+                }
+
+                SystemUpdateComponent: SystemUpdateComponent {
+                    using ports:
+                        inUpdateRequest: inSystemUpdate;
+                        outUpdateStatus: outUpdateStatus;
+                }
         } 
     }
     
@@ -585,7 +615,7 @@ package ParkingSystem.Components {
                 
                 connectors:
                     vehicleEntryData: vehicleInfo bindings   outCarData = inVehicleEntry;
-                    vehicleEntryConnector2: vehicleInfo bindings  outStatusPort = inStatusPort;
+                    vehicleEntryStatus: vehicleInfo bindings  outStatusPort = inStatusPort;
                 
                     vehicleExitData: vehicleInfo bindings   outCarData = inVehicleExit;
                     vehicleExitStatus: vehicleInfo bindings  outStatusPortExit = inStatusPort;
@@ -710,9 +740,7 @@ package ParkingSystem.Components {
         
         flow from data to VehicleRegistrationInfo flow from identify to identificationAutomaticBarrier flow from automaticBarrierOpen to VehicleRegistrationInfo delegate inStatusAutomaticBarrier to inAutomaticBarrierStatus delegate identify to automaticBarrierOpen
         
-        datastore VehicleRegistrationInfo : VehicleRegistrationInfo {
-		
-                }
+        datastore VehicleRegistrationInfo : VehicleRegistrationInfo {}
     }
 }
 
@@ -753,220 +781,213 @@ package ParkingSystem.Components {
     }
     
 
-   
-
-
 activity def VehicleExitAC(inSecurityCameraStatus: SecurityCamera ) (inStatusAutomaticBarrier: AutomaticBarrier) (inStatusPaymentEquipment: PaymentEquipment) : (exitConfirmation: PaymentConfirmation) {
     body {
         actions:
-                  identify : IdentifyVehicleAN {
-                using pins: identification : VehicleRegistrationInfo;
+            identify: IdentifyVehicleAN {
+                using pins:
+                    identification : VehicleRegistrationInfo;
             }
-            securityCameraIdentify : SecurityCameraIdentificationAN {
-                using pins: image : ImageData;
-                data : VehicleRegistrationInfo;
+
+            securityCameraIdentify: SecurityCameraIdentificationAN {
+                using pins:
+                    image : ImageData;
+                    data : VehicleRegistrationInfo;
             }
-             securityCameraIsOn : SecurityCameraOnAN {
-                using pins: inSecurityCameraStatus : SecurityCamera;
+
+            securityCameraIsOn: SecurityCameraOnAN {
+                using pins:
+                    inSecurityCameraStatus : SecurityCamera;
             }
             
-            automaticBarrierOpen : AutomaticBarrierOpenOutAN {
-                using pins: inAutomaticBarrierStatus : AutomaticBarrier; 
-                paymentInfoAutomaticBarrier : PaymentInfo;
+            automaticBarrierOpen: AutomaticBarrierOpenOutAN {
+                using pins:
+                    inAutomaticBarrierStatus: AutomaticBarrier; 
+                    paymentInfoAutomaticBarrier: PaymentInfo;
             }
 
-            calculatePayment : CalculatePaymentAction {
-                using pins: vehicleRegistrationInfo: VehicleRegistrationInfo;
-            }
-            acceptPayment : AcceptPaymentAction {
-                using pins: paymentInfo : PaymentInfo;
-                inStatusPaymentEquipment: PaymentEquipment;
+            calculatePayment: CalculatePaymentAction {
+                using pins:
+                    vehicleRegistrationInfo: VehicleRegistrationInfo;
             }
 
-            confirmExit : ConfirmExitAction {
-                using pins: confirmation : PaymentConfirmation; 
+            acceptPayment: AcceptPaymentAction {
+                using pins: 
+                    paymentInfo: PaymentInfo;
+                    inStatusPaymentEquipment: PaymentEquipment;
+            }
+
+            confirmExit: ConfirmExitAction {
+                using pins: confirmation: PaymentConfirmation; 
             }
         
-        delegate inSecurityCameraStatus to securityCameraIsOn 
-        delegate inStatusAutomaticBarrier to inAutomaticBarrierStatus
-        delegate inSecurityCameraStatus to inSecurityCameraStatus 
-        delegate inStatusPaymentEquipment to inStatusPaymentEquipment 
-        
-        flow from securityCameraIsOn to image 
-        flow from securityCameraIdentify to identification 
-        flow from identify to vehicleRegistrationInfo 
-        flow from calculatePayment to paymentInfo 
-        flow from VehicleRegistrationInfo to data flow from acceptPayment to confirmation flow from confirmExit to paymentInfoAutomaticBarrier delegate exitConfirmation to automaticBarrierOpen 
-        
-        datastore VehicleRegistrationInfo : VehicleRegistrationInfo {
-		
-                }
-    }
-}
-
-    action def AutomaticBarrierOpenOutAN(vehicleRegistrationInfo: VehicleRegistrationInfo , automaticBarrier: AutomaticBarrier, paymentInfo : PaymentInfo) :  PaymentConfirmation {
-        constraint: post-condition AutomaticBarrierOpenOutCondition
-    }
-    
-         constraint AutomaticBarrierOpenOutCondition(vehicleRegistrationInfo: VehicleRegistrationInfo, automaticBarrier: AutomaticBarrier, paymentInfo : PaymentInfo) : (paymentConfirmation: PaymentConfirmation) {
-  				 equation = automaticBarrier->status && automaticBarrier->isOpen
-                && vehicleRegistrationInfo->identificationMethod == VehicleIdentificationMethod::licensePlateRecognition
-                && paymentInfo->isPaid
-    }
-    
-    
-
-action def ConfirmExitAction(confirmation: PaymentConfirmation) : PaymentConfirmation {
-    constraint: post-condition ExitConfirmationCondition
-}
-
-constraint ExitConfirmationCondition(confirmation: PaymentConfirmation) : (exitConfirmation: PaymentConfirmation) {
-        equation = confirmation == PaymentConfirmation::confirmed || confirmation == PaymentConfirmation::pending
-
-}
-
-
-
-
-action def CalculatePaymentAction(vehicleRegistrationInfo : VehicleRegistrationInfo) : PaymentInfo {
-    constraint: post-condition PaymentProcessingCondition
-}
-
- constraint PaymentProcessingCondition(vehicleRegistrationInfo : VehicleRegistrationInfo ) : (paymentInfo: PaymentInfo) {
-            equation = vehicleRegistrationInfo->isOk
+            delegate inSecurityCameraStatus to securityCameraIsOn 
+            delegate inStatusAutomaticBarrier to inAutomaticBarrierStatus
+            delegate inSecurityCameraStatus to inSecurityCameraStatus 
+            delegate inStatusPaymentEquipment to inStatusPaymentEquipment 
+            
+            flow from securityCameraIsOn to image 
+            flow from securityCameraIdentify to identification 
+            flow from identify to vehicleRegistrationInfo 
+            flow from calculatePayment to paymentInfo 
+            flow from VehicleRegistrationInfo to data flow from acceptPayment to confirmation flow from confirmExit to paymentInfoAutomaticBarrier delegate exitConfirmation to automaticBarrierOpen 
+            
+            datastore VehicleRegistrationInfo : VehicleRegistrationInfo {}
     }
 
-action def AcceptPaymentAction(paymentInfo: PaymentInfo) : PaymentInfo {
-    constraint: post-condition PaymentConfirmationCondition
-}
-
-constraint PaymentConfirmationCondition(paymentInfo: PaymentInfo) : (paymentInfo: PaymentInfo) {
-     equation = paymentInfo->isPaid
-
-}
-
-
-
-}
-
-
-Requirement ControlEntranceExitFRD (1.0) {
-    text = "The system must control vehicle entry and exit."
-    Requirement EnterVehicleFRD (1.3) {
-        text = "The system must allow the entry of vehicles after proper identification."
-        satisfied by ParkingSystem.Components.VehicleEntryComponent;
-    }
-    Requirement RecordEntryExitFRD (1.1) {
-        text = "The system should record the date and time of entry and exit for each vehicle."
-        satisfied by ParkingSystem.Components.VehicleExitComponent;
-    }
-    Requirement ConfirmPaymentNFRD (1.2) {
-        text = "The system should allow vehicle exit upon payment confirmation."
+        action def AutomaticBarrierOpenOutAN(vehicleRegistrationInfo: VehicleRegistrationInfo , automaticBarrier: AutomaticBarrier, paymentInfo : PaymentInfo) :  PaymentConfirmation {
+            constraint: post-condition AutomaticBarrierOpenOutCondition
         }
-}
+        
+        constraint AutomaticBarrierOpenOutCondition(vehicleRegistrationInfo: VehicleRegistrationInfo, automaticBarrier: AutomaticBarrier, paymentInfo : PaymentInfo) : (paymentConfirmation: PaymentConfirmation) {
+            equation = automaticBarrier->status && automaticBarrier->isOpen
+            && vehicleRegistrationInfo->identificationMethod == VehicleIdentificationMethod::licensePlateRecognition
+            && paymentInfo->isPaid
+        }
+        
+        action def ConfirmExitAction(confirmation: PaymentConfirmation) : PaymentConfirmation {
+            constraint: post-condition ExitConfirmationCondition
+        }
 
-Requirement VehicleIdentificationFRD (2.0) {
-    text = "The system must provide methods for vehicle identification."
-    satisfied by ParkingSystem.Components.LicensePlateDetectionComponent;
-    Requirement LicensePlateRecognitionNFRD (2.1) {
-        text = "The system should offer license plate reading for vehicle identification."
-    }
-    Requirement ProximityCardNFRD (2.2) {
-        text = "The system should support proximity card scanning for vehicle identification."
-    }
-    Requirement RegisterVehiclesNFRD (2.3) {
-        text = "The system should register vehicles."
-    }
-}
+        constraint ExitConfirmationCondition(confirmation: PaymentConfirmation) : (exitConfirmation: PaymentConfirmation) {
+            equation = confirmation == PaymentConfirmation::confirmed || confirmation == PaymentConfirmation::pending
+        }
 
-Requirement PaymentProcessingFRD (3.0) {
-    text = "The system must handle payment processing."
-    Requirement CalculateParkingFeesNFRD (3.1) {
-        text = "The system should calculate parking fees based on the duration of the stay."
-    }
-    Requirement AcceptPaymentMethodsNFRD (3.2) {
-        text = "The system must accept various payment methods, including Pix and credit cards."
-    }
-}
+        action def CalculatePaymentAction(vehicleRegistrationInfo : VehicleRegistrationInfo) : PaymentInfo {
+            constraint: post-condition PaymentProcessingCondition
+        }
 
-Requirement EquipmentInstallationNFRD (4.0) {
-    text = "The system should manage necessary equipment."
-    Requirement SecurityCamerasNFRD (4.1) {
-        text = "The system must install security cameras for monitoring entrances and exits."
-        satisfied by ParkingSystem.Components.SecurityCameraComponent;
-    }
-    Requirement AutomaticBarriersNFRD (4.2) {
-        text = "The system should install automatic barriers for vehicle access control."
-        satisfied by ParkingSystem.Components.AutomaticBarrierComponent;
-    }
-    Requirement PaymentEquipmentNFRD (4.3) {
-        text = "The system must install payment processing equipment."
-        satisfied by ParkingSystem.Components.PaymentEquipmentComponent;
-    }
-}
+        constraint PaymentProcessingCondition(vehicleRegistrationInfo : VehicleRegistrationInfo ) : (paymentInfo: PaymentInfo) {
+            equation = vehicleRegistrationInfo->isOk
+        }
 
-Requirement ScalabilityNFRD (5.0) {
-    text = "The system must be scalable for different parking sizes."
-    Requirement AdaptToDifferentSizesNFRD (5.1) {
-        text = "The system should be adaptable to various parking sizes, from small lots to large garages."
-    }
-    Requirement AddEntryExitPointsNFRD (5.2) {
-        text = "It should be possible to add more entry/exit points and equipment as needed."
-        satisfied by ParkingSystem.Components.ParkingSystem;
-    }
-}
+        action def AcceptPaymentAction(paymentInfo: PaymentInfo) : PaymentInfo {
+            constraint: post-condition PaymentConfirmationCondition
+        }
 
-Requirement BackupRecoveryNFRD (6.0) {
-    text = "The system must have backup and recovery strategies."
-    Requirement RobustFailureToleranceNFRD (6.1) {
-        text = "The system should be robust and resistant to failures, ensuring control over entries and exits."
-    }
-    Requirement DataReplicationNFRD (6.2) {
-        text = "The central system must be replicated for reliability."
-    }
-}
+        constraint PaymentConfirmationCondition(paymentInfo: PaymentInfo) : (paymentInfo: PaymentInfo) {
+            equation = paymentInfo->isPaid
+        }
 
-Requirement SecurityNFRD (7.0) {
-    text = "The system must ensure security."
-    Requirement LicensePlateDetectionNFRD (7.1) {
-        text = "The system must identify altered license plates and notify operators."
-    }
-}
+        }
 
-Requirement PerformanceNFRD (8.0) {
-    text = "The system must provide good performance."
-    Requirement ResponsiveInterfaceNFRD (8.1) {
-        text = "The system should be responsive with fast response times."
+    Requirement ControlEntranceExitFRD (1.0) {
+        text = "The system must control vehicle entry and exit."
+        Requirement EnterVehicleFRD (1.3) {
+            text = "The system must allow the entry of vehicles after proper identification."
+            satisfied by ParkingSystem.Components.VehicleEntryComponent;
+        }
+        Requirement RecordEntryExitFRD (1.1) {
+            text = "The system should record the date and time of entry and exit for each vehicle."
+            satisfied by ParkingSystem.Components.VehicleExitComponent;
+        }
+        Requirement ConfirmPaymentNFRD (1.2) {
+            text = "The system should allow vehicle exit upon payment confirmation."
+            }
     }
-    Requirement HandleVolumeNFRD (8.2) {
-        text = "The system should be capable of handling the expected volume of vehicles."
-    }
-}
 
-Requirement UsabilityNFRD (9.0) {
-    text = "The system should be user-friendly."
-    Requirement UserFriendlyInterfaceNFRD (9.1) {
-        text = "The system's interface should be user-friendly for operators and customers."
+    Requirement VehicleIdentificationFRD (2.0) {
+        text = "The system must provide methods for vehicle identification."
+        satisfied by ParkingSystem.Components.LicensePlateDetectionComponent;
+        Requirement LicensePlateRecognitionNFRD (2.1) {
+            text = "The system should offer license plate reading for vehicle identification."
+        }
+        Requirement ProximityCardNFRD (2.2) {
+            text = "The system should support proximity card scanning for vehicle identification."
+        }
+        Requirement RegisterVehiclesNFRD (2.3) {
+            text = "The system should register vehicles."
+        }
     }
-    Requirement ClearInstructionsNFRD (9.2) {
-        text = "Clear instructions should guide customers during parking and payment processes."
-    }
-}
 
-Requirement MaintenanceUpdatesNFRD (10.0) {
-    text = "The system should support maintenance and updates."
-    Requirement EfficientUpdatesNFRD (10.1) {
-        text = "The system should allow for efficient updates to incorporate improvements and fixes."
+    Requirement PaymentProcessingFRD (3.0) {
+        text = "The system must handle payment processing."
+        Requirement CalculateParkingFeesNFRD (3.1) {
+            text = "The system should calculate parking fees based on the duration of the stay."
+        }
+        Requirement AcceptPaymentMethodsNFRD (3.2) {
+            text = "The system must accept various payment methods, including Pix and credit cards."
+        }
     }
-    Requirement PreventiveMaintenanceNFRD (10.2) {
-        text = "A preventive maintenance plan should be established for the equipment."
+
+    Requirement EquipmentInstallationNFRD (4.0) {
+        text = "The system should manage necessary equipment."
+        Requirement SecurityCamerasNFRD (4.1) {
+            text = "The system must install security cameras for monitoring entrances and exits."
+            satisfied by ParkingSystem.Components.SecurityCameraComponent;
+        }
+        Requirement AutomaticBarriersNFRD (4.2) {
+            text = "The system should install automatic barriers for vehicle access control."
+            satisfied by ParkingSystem.Components.AutomaticBarrierComponent;
+        }
+        Requirement PaymentEquipmentNFRD (4.3) {
+            text = "The system must install payment processing equipment."
+            satisfied by ParkingSystem.Components.PaymentEquipmentComponent;
+        }
     }
-}
+
+    Requirement ScalabilityNFRD (5.0) {
+        text = "The system must be scalable for different parking sizes."
+        Requirement AdaptToDifferentSizesNFRD (5.1) {
+            text = "The system should be adaptable to various parking sizes, from small lots to large garages."
+        }
+        Requirement AddEntryExitPointsNFRD (5.2) {
+            text = "It should be possible to add more entry/exit points and equipment as needed."
+            satisfied by ParkingSystem.Components.ParkingSystem;
+        }
+    }
+
+    Requirement BackupRecoveryNFRD (6.0) {
+        text = "The system must have backup and recovery strategies."
+        Requirement RobustFailureToleranceNFRD (6.1) {
+            text = "The system should be robust and resistant to failures, ensuring control over entries and exits."
+        }
+        Requirement DataReplicationNFRD (6.2) {
+            text = "The central system must be replicated for reliability."
+        }
+    }
+
+    Requirement SecurityNFRD (7.0) {
+        text = "The system must ensure security."
+        Requirement LicensePlateDetectionNFRD (7.1) {
+            text = "The system must identify altered license plates and notify operators."
+        }
+    }
+
+    Requirement PerformanceNFRD (8.0) {
+        text = "The system must provide good performance."
+        Requirement ResponsiveInterfaceNFRD (8.1) {
+            text = "The system should be responsive with fast response times."
+        }
+        Requirement HandleVolumeNFRD (8.2) {
+            text = "The system should be capable of handling the expected volume of vehicles."
+        }
+    }
+
+    Requirement UsabilityNFRD (9.0) {
+        text = "The system should be user-friendly."
+        Requirement UserFriendlyInterfaceNFRD (9.1) {
+            text = "The system's interface should be user-friendly for operators and customers."
+        }
+        Requirement ClearInstructionsNFRD (9.2) {
+            text = "Clear instructions should guide customers during parking and payment processes."
+        }
+    }
+
+    Requirement MaintenanceUpdatesNFRD (10.0) {
+        text = "The system should support maintenance and updates."
+        Requirement EfficientUpdatesNFRD (10.1) {
+            text = "The system should allow for efficient updates to incorporate improvements and fixes."
+        }
+        Requirement PreventiveMaintenanceNFRD (10.2) {
+            text = "A preventive maintenance plan should be established for the equipment."
+        }
+    }
 
         
+    allocations {
+        activity VehicleEntryAC to VehicleEntryComponent
+        activity VehicleExitAC to VehicleExitComponent
+    }
 
-allocations {
-    activity VehicleEntryAC to VehicleEntryComponent
-    activity VehicleExitAC to VehicleExitComponent
- 
 }
